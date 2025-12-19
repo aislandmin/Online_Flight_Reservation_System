@@ -1,0 +1,97 @@
+<!-- Xiamin Guo 301495284 10-29-2025 -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reservation History</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        tr:hover { background-color: #f9f9f9; }
+        button { padding: 6px 12px; border: none; background-color: #007bff; color: white; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .disabled-button {
+		    background-color: #ccc;      /* gray */
+		    color: #666;                 /* darker gray text */
+		    cursor: not-allowed;         /* show “not allowed” cursor */
+		    pointer-events: none;        /* prevent clicking */
+		}
+    </style>
+</head>
+<body>
+  
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
+	    <h2>Welcome, <span th:text="${passenger.email}"></span></h2>
+	    
+	    <!-- Right side: Links -->
+	    <div>
+	        <a th:href="@{'/passengers/profile/' + ${passenger.passengerId}}" style="margin-right:10px;">Profile</a>
+	        <a th:href="@{/logout}">Logout</a>
+	    </div>
+    </div>
+
+    <h3>Reservation History</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Reservation ID</th>
+                <th>Flight</th>
+                <th>Booking Date</th>                
+                <th>Departure Date</th>
+                <th>Number of Passengers</th>
+                <th>Total Price ($)</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="r : ${reservations}">
+                <td th:text="${r.reservationId}"></td>
+                <td th:text="${r.flight.origin + ' → ' + r.flight.destination + ' (' + r.flight.airlineName + ')'}"></td>
+                <td th:text="${r.bookingDate}"></td>                
+                <td th:text="${r.departureDate}"></td>
+                <td th:text="${r.noOfPassengers}"></td>
+                <td th:text="${r.totalPrice}"></td>
+                <td th:text="${r.status}"></td>
+                <td>
+					<a th:if="${r.status != T(com.xiaomin.mvc.jpa.entity.Reservation.Status).CANCELLED}"
+					   th:href="@{'/reservations/edit/' + ${r.reservationId}}"
+					   style="display:inline-block; padding:6px 12px; background-color:#007bff; color:white; border-radius:5px; text-decoration:none;">
+					    Modify
+					</a>                    
+                    <form th:if="${r.status != T(com.xiaomin.mvc.jpa.entity.Reservation.Status).CANCELLED}"  
+                    	th:action="@{'/reservations/cancel/' + ${r.reservationId}}" method="post" style="display:inline;">
+                        <button type="submit"
+                        	th:classappend="${r.status == 'CANCELLED' or r.departureDate <= #temporals.createNow().toLocalDate().plusDays(10)} ? 'disabled-button' : ''">
+                            Cancel
+                        </button>
+                    </form>
+					<!-- Pay button (only if status is PENDING) -->
+					<form th:if="${r.status == T(com.xiaomin.mvc.jpa.entity.Reservation.Status).PENDING}" 
+					      th:action="@{'/reservations/pay'}" method="post" style="display:inline; margin-left:5px;">
+					    <input type="hidden" name="reservationId" th:value="${r.reservationId}" />
+					    <button type="submit" style="padding:6px 12px; background-color:#28a745; color:white; border-radius:5px; border:none; cursor:pointer;">
+					        Pay
+					    </button>
+					</form>
+                </td>
+            </tr>
+			<tr th:if="${#lists.isEmpty(reservations)}">
+			    <td colspan="7" 
+			        style="text-align: center; color: gray; font-style: italic; padding: 10px;">
+			        No reservations found.
+			    </td>
+			</tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 20px;">
+        <a th:href="@{'/reservations/book/' + ${passenger.passengerId}}">
+            <button type="button">Book Another Flight</button>
+        </a>
+    </div>
+    
+</body>
+</html>

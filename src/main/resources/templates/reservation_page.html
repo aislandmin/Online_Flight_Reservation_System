@@ -1,0 +1,175 @@
+<!-- Xiamin Guo 301495284 10-29-2025 -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Book a Flight</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        h2 {
+            color: #333;
+        }
+        form {
+            border: 1px solid #ccc;
+            padding: 20px;
+            width: 420px;
+            border-radius: 8px;
+        }
+        label {
+            display: inline-block;
+            width: 160px;
+            margin-top: 8px;
+        }
+        input, select {
+            width: 200px;
+            margin-top: 8px;
+        }
+        button {
+            margin-top: 15px;
+            padding: 8px 14px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #flightDetails {
+            display: none;
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            width: 400px;
+            border-radius: 6px;
+        }
+        img {
+            margin-top: 8px;
+            border-radius: 5px;
+        }
+        select {
+	        width: 420px;         /* Wider dropdown */
+	        white-space: nowrap;  /* Prevent text wrapping */
+	        overflow: hidden;     /* Hide overflow text */
+	        text-overflow: ellipsis; /* Show ... if text is too long */
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+	    <h2>Welcome, <span th:text="${passenger.email}"></span></h2>
+	    
+	    <!-- Right side: Links -->
+	    <div>
+	        <a th:href="@{'/passengers/profile/' + ${passenger.passengerId}}" style="margin-right:10px;">Profile</a>
+	        <a th:href="@{/logout}">Logout</a>
+	    </div>
+    </div>
+    
+
+    <div style="margin-bottom: 20px;">
+        <a th:href="@{'/reservations/history/' + ${passenger.passengerId}}">
+            <button type="button">View Reservation History</button>
+        </a>
+    </div>
+
+    <h3>Book a New Flight</h3>
+    <form th:action="@{/reservations/book}" th:object="${reservation}" method="post">
+        <input type="hidden" th:field="*{passenger.passengerId}"/>
+
+        <!-- Select Flight -->
+        <label for="flightSelect">Select Flight:</label>
+        <select id="flightSelect" th:field="*{flight.flightId}" required onchange="showFlightDetails(this)">
+            <option value="">-- Choose a Flight --</option>
+            <option th:each="f : ${flights}"
+                    th:value="${f.flightId}"
+                    th:data-origin="${f.origin}"
+                    th:data-destination="${f.destination}"
+                    th:data-departure="${#temporals.format(f.departureTime, 'HH:mm')}"
+                    th:data-arrival="${#temporals.format(f.arrivalTime, 'HH:mm')}"
+                    th:data-price="${f.price}"
+                    th:data-airline="${f.airlineName}"
+                    th:data-logo="@{'/images/' + ${#strings.replace(f.airlineName.toLowerCase(), ' ', '_')} + '.png'}"
+                    th:text="${f.origin + ' → ' + f.destination + ' (' + f.airlineName + ')'}">
+            </option>
+        </select><br/>
+
+        <!-- 2️ Flight Details -->
+        <div id="flightDetails">
+            <p><strong>Airline:</strong> <span id="airlineName"></span></p>
+            <p><strong>Departure Time:</strong> <span id="departureTime"></span></p>
+            <p><strong>Arrival Time:</strong> <span id="arrivalTime"></span></p>
+            <p><strong>Origin:</strong> <span id="origin"></span></p>
+            <p><strong>Destination:</strong><span id="destination"></span></p>
+            <p><strong>Price:</strong> $<span id="flightPrice"></span></p>
+            <img id="airlineLogo" src="" alt="Airline Logo" width="90"/>
+        </div>
+
+        <!-- 3️ Passenger Details -->
+        <label>Number of Passengers:</label>
+        <input type="number" th:field="*{noOfPassengers}" id="noOfPassengers" min="1" value="1" 
+        	oninput="updateTotalPrice()" required/><br/>
+
+        <!-- 4️ Dates -->
+        <label>Departure Date:</label>
+        <input type="date" th:field="*{departureDate}" 
+       		th:attr="min=${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}" 
+      		required/><br/>
+
+        <!-- 5️ Price -->
+        <label>Total Price ($):</label>
+        <input type="number" th:field="*{totalPrice}" id="totalPrice" 
+        	min="0" step="0.01" required/><br/>
+
+        <button type="submit">Book Flight</button>
+    </form>
+
+    <script>
+    function showFlightDetails(select) {
+        const option = select.options[select.selectedIndex];
+        if (!option.value) {
+            document.getElementById("flightDetails").style.display = "none";
+            document.getElementById("totalPrice").value = "0.00";
+            return;
+        }
+
+        const flightPrice = parseFloat(option.getAttribute("data-price")); // convert to number;
+        
+        document.getElementById("airlineName").textContent = option.getAttribute("data-airline");
+        document.getElementById("departureTime").textContent = option.getAttribute("data-departure");
+        document.getElementById("arrivalTime").textContent = option.getAttribute("data-arrival");
+        document.getElementById("origin").textContent = option.getAttribute("data-origin");
+        document.getElementById("destination").textContent = option.getAttribute("data-destination");
+        document.getElementById("flightPrice").textContent = flightPrice.toFixed(2);
+
+        const logo = document.getElementById("airlineLogo");
+        logo.src = option.getAttribute("data-logo");
+        logo.onerror = () => logo.style.display = "none";
+
+        document.getElementById("flightDetails").style.display = "block";
+        
+        const noOfPassengers = parseInt(document.getElementById("noOfPassengers").value) || 1;
+        document.getElementById("totalPrice").value = (flightPrice * noOfPassengers).toFixed(2);;
+    }
+    
+    function updateTotalPrice() {
+        const flightSelect = document.getElementById("flightSelect");
+        const option = flightSelect.options[flightSelect.selectedIndex];
+        if (!option.value) {
+            document.getElementById("totalPrice").value = "0.00";
+            return;
+        }
+
+        const flightPrice = parseFloat(option.getAttribute("data-price"));
+        const noOfPassengers = parseInt(document.getElementById("noOfPassengers").value) || 1;
+
+        document.getElementById("totalPrice").value = (flightPrice * noOfPassengers).toFixed(2);
+    }
+    </script>
+
+</body>
+</html>

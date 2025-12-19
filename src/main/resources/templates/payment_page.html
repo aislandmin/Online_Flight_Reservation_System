@@ -1,0 +1,23 @@
+<!-- Xiamin Guo 301495284 10-29-2025 -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Payment Page</title>
+</head>
+<body>
+<h2>Complete Your Payment</h2>
+
+<p>Total Price: $<span th:text="${reservation.totalPrice}"></span></p>
+
+<form th:action="@{/reservations/confirmation}" method="post">
+    <input type="hidden" name="reservationId" th:value="${reservation.reservationId}"/>
+
+    <label><input type="radio" name="paymentMethod" value="Card" required> Credit/Debit Card</label><br>
+    <label><input type="radio" name="paymentMethod" value="PayPal"> PayPal</label><br>
+    <label><input type="radio" name="paymentMethod" value="ApplePay"> Apple Pay</label><br>
+    <label><input type="radio" name="paymentMethod" value="GooglePay"> Google Pay</label><br>
+
+    <button type="submit">Proceed to Pay</button>
+</form>
+</body>
+</html>

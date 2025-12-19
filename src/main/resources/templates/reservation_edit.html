@@ -1,0 +1,69 @@
+<!-- Xiamin Guo 301495284 10-29-2025 -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Reservation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input, select { padding: 6px; width: 300px; margin-top: 5px; }
+        button { padding: 8px 16px; margin-top: 20px; border: none; background-color: #007bff; color: white; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .readonly { background-color: #f2f2f2; }
+        .error { color: red; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h2>Edit Reservation</h2>
+
+    <form th:action="@{'/reservations/update'}" th:object="${reservation}" method="post">
+        <input type="hidden" th:field="*{reservationId}" />
+        <input type="hidden" th:field="*{passenger.passengerId}" />
+        <input type="hidden" th:field="*{flight.price}" id="flight_price"/>         
+       
+        <!-- Flight Info (readonly) -->
+        <label>Flight:</label>
+        <input type="text" th:value="${reservation.flight.origin + ' → ' + reservation.flight.destination + ' (' + reservation.flight.airlineName + ')'}" readonly class="readonly"/>
+
+        <!-- Passenger Info (readonly) -->
+        <label>Passenger:</label>
+        <input type="text" th:value="${reservation.passenger.email}" readonly class="readonly"/>
+
+        <!-- Booking Date (readonly) -->
+        <label>Booking Date:</label>
+        <input type="date" th:value="${reservation.bookingDate}" readonly class="readonly"/>
+
+        <!-- Departure Date (editable) -->
+        <label>Departure Date:</label>
+		<input type="date"
+		       th:field="*{departureDate}"
+		       th:min="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"
+		       required />
+        
+        <!-- Number of Passengers (editable) -->
+        <label>Number of Passengers:</label>
+        <input type="number" th:field="*{noOfPassengers}" id="noOfPassengers" min="1" 
+        	onchange="recalculateTotalPrice()" required/>
+
+        <!-- Total Price (readonly or recalculated in backend) -->
+        <label>Total Price ($):</label>
+        <input type="number" th:field="*{totalPrice}" id="totalPrice" readonly class="readonly"/>
+
+        <!-- Status (readonly) -->
+        <label>Status:</label>
+        <input type="text" th:value="${reservation.status}" readonly class="readonly"/>
+
+        <button type="submit">Update Reservation</button>
+    </form>
+    
+    <script>    
+    function recalculateTotalPrice() {
+        const flightPrice = parseFloat(document.getElementById("flight_price").value) || 0;
+        const noOfPassengers = parseInt(document.getElementById("noOfPassengers").value) || 1;
+
+        document.getElementById("totalPrice").value = (flightPrice * noOfPassengers).toFixed(2);
+    }
+    </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+<!-- Xiamin Guo 301495284 10-29-2025 -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+    <h2>Sign Up</h2>
+    <!-- Show error if email already registered -->
+	<p th:if="${error}" th:text="${error}" style="color:red;"></p>
+    <form th:action="@{/register}" th:object="${passenger}" method="post">
+        <label>First Name:</label> <input type="text" th:field="*{firstname}" required style="margin-bottom: 10px;"/><br/>
+        <label>Last Name:</label> <input type="text" th:field="*{lastname}" required style="margin-bottom: 10px;"/><br/>
+        <label>Email:</label> <input type="email" th:field="*{email}" required style="margin-bottom: 10px;"/><br/>
+        <label>Password:</label> <input type="password" th:field="*{password}" required style="margin-bottom: 10px;"/><br/>
+        <label>Address:</label> <input type="text" th:field="*{address}" style="margin-bottom: 10px;"/><br/>
+        <label>City:</label> <input type="text" th:field="*{city}" style="margin-bottom: 10px;"/><br/>
+        <label>Postal Code:</label> <input type="text" th:field="*{postalCode}" style="margin-bottom: 10px;"/><br/>
+        <button type="submit">Register</button>
+    </form>
+    <a th:href="@{/login}">Already have an account? Sign In</a>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!-- Xiamin Guo 301495284 10-29-2025 -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8">
+	<title>Login</title>
+</head>
+<body>
+	<h2>Sign In</h2>
+
+	<!-- Show success message (from registration) -->
+	<p th:if="${message}" th:text="${message}" style="color:green;"></p>
+
+	<!-- Show error message (from failed login) -->
+	<p th:if="${error}" th:text="${error}" style="color:red;"></p>
+
+	<form th:action="@{/login}" th:object="${passenger}" method="post">
+		<label>Email:</label>
+		<input type="email" th:field="*{email}" required style="margin-bottom: 10px;"/><br/>
+
+		<label>Password:</label>
+		<input type="password" th:field="*{password}" required style="margin-bottom: 10px;"/><br/>
+
+		<button type="submit">Login</button>
+	</form>
+
+	<p><a th:href="@{/register}">Don't have an account? Sign Up</a></p>
+</body>
+</html>
+

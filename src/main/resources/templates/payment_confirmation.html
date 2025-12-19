@@ -1,0 +1,61 @@
+<!-- Xiamin Guo 301495284 10-29-2025 -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Confirmation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        h2 { color: #28a745; }
+        .details {
+            margin-top: 20px;
+            padding: 20px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            max-width: 600px;
+        }
+        .details h3 { margin-top: 0; }
+        .details p { margin: 8px 0; }
+        .button-wrapper {
+            margin-top: 40px;  /* more space below the details box */
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+
+<h2>Payment Successful!</h2>
+
+<p>Thank you for your payment. Your reservation has been confirmed.</p>
+
+<div class="details">
+    <h3>Reservation Details:</h3>
+    <p><strong>Passenger Name:</strong> <span th:text="${reservation.passenger.firstname + ' ' + reservation.passenger.lastname}"></span></p>
+    <p><strong>Passenger Email:</strong> <span th:text="${reservation.passenger.email}"></span></p>
+    <p><strong>Flight:</strong> 
+        <span th:text="${reservation.flight.origin + ' → ' + reservation.flight.destination + ' (' + reservation.flight.airlineName + ')'}"></span>
+    </p>
+    <p><strong>Departure Date:</strong> <span th:text="${reservation.departureDate}"></span></p>
+    <p><strong>Number of Passengers:</strong> <span th:text="${reservation.noOfPassengers}"></span></p>
+    <p><strong>Total Price:</strong> $<span th:text="${reservation.totalPrice}"></span></p>
+    <p><strong>Payment Method:</strong> <span th:text="${paymentMethod}"></span></p>
+</div>
+
+<div class="button-wrapper">
+    <a th:href="@{'/reservations/history/' + ${reservation.passenger.passengerId}}" class="button">Back to Reservation History</a>
+</div>
+    
+</body>
+</html>
+
